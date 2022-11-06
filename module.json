@@ -1,0 +1,32 @@
+{
+	"id": "notes-with-anchors",
+	"title": "Notes with Anchors",
+	"description": "A module that enables canvas notes to link to journal page anchors.",
+	"version": "0.0.0",
+	"authors": [
+		{
+			"name": "Seth Gallucci",
+			"url": "https://github.com/SethGallucci"
+		}
+	],
+	"esmodules": ["scripts/notes-with-anchors.js"],
+	"relationships": {
+		"requires": [
+			{
+				"id": "lib-wrapper",
+				"type": "module",
+				"manifest": "https://github.com/ruipin/fvtt-lib-wrapper/releases/latest/download/module.json"
+			}
+		]
+	},
+	"minimumCoreVersion": "10",
+	"compatibleCoreVersion": "10",
+	"compatibility": {
+		"minimum": "10",
+		"verified": "10"
+	},
+	"url": "https://github.com/SethGallucci/Notes-with-Anchors",
+	"readme": "https://github.com/SethGallucci/Notes-with-Anchors/blob/main/README.md",
+	"manifest": "",
+	"download": ""
+}
