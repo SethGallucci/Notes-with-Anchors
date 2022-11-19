@@ -1,5 +1,5 @@
 # Notes with Anchors
-From what is probably an oversight or time constraint, Foundry is not natively capable of linking notes to specific anchors within journal pages. This module adds such functionality to Foundry.
+This module extends to canvas notes the functionality found in content links of being able to link directly to page anchors in journal pages.
 
 ### How-To
 Drag journal entries, pages, or section names from a journal sidebar and configure them as you normally would. The only difference is that you will be able to link to specific sections within journal pages (anchors) rather than being limited to linking to just whole pages or whole journal entries.
