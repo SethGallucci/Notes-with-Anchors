@@ -13,7 +13,7 @@ Hooks.once("init", () => {
         config: true,
         default: " ",
         type: String,
-        onChange: () => canvas.notes.draw()
+        onChange: redrawNotes
     });
 
     game.settings.register(moduleName, includeEntryName, {
@@ -23,7 +23,7 @@ Hooks.once("init", () => {
         config: true,
         default: true,
         type: Boolean,
-        onChange: () => canvas.notes.draw()
+        onChange: redrawNotes
     });
 
     game.settings.register(moduleName, includePageName, {
@@ -33,7 +33,7 @@ Hooks.once("init", () => {
         config: true,
         default: true,
         type: Boolean,
-        onChange: () => canvas.notes.draw()
+        onChange: redrawNotes
     });
 
     game.settings.register(moduleName, includeAnchorName, {
@@ -43,7 +43,7 @@ Hooks.once("init", () => {
         config: true,
         default: true,
         type: Boolean,
-        onChange: () => canvas.notes.draw()
+        onChange: redrawNotes
     });
 
 });
@@ -215,3 +215,5 @@ function updateTextLabelPlaceholder(formApp) {
     formApp.form.elements.text.placeholder = placeholder;
 
 }
+
+const redrawNotes = debounce(() => canvas.notes.draw(), 100);
