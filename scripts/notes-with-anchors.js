@@ -119,18 +119,6 @@ Hooks.once("libWrapper.Ready", () => {
         "MIXED"
     );
 
-    // Pave over a bug in core Foundry.
-    // https://github.com/foundryvtt/foundryvtt/issues/8528
-    libWrapper.register(
-        moduleName,
-        "PlaceablesLayer.prototype._draw",
-        function (wrapped, ...args) {
-            wrapped(...args);
-            this.objects.visible = true;
-        },
-        "WRAPPER"
-    );
-
 });
 
 
