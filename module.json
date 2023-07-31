@@ -5,8 +5,7 @@
   "version": "0.0.2",
   "compatibility": {
     "minimum": "10.291",
-    "verified": "10.291",
-    "maximum": "10"
+    "verified": "11.306"
   },
   "authors": [
     {
@@ -26,7 +25,7 @@
         "manifest": "https://github.com/ruipin/fvtt-lib-wrapper/releases/latest/download/module.json",
         "compatibility": {
           "minimum": "1.12.10.0",
-          "verified": "1.12.11.0"
+          "verified": "1.12.13.0"
         }
       }
     ]
