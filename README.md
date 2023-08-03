@@ -1,5 +1,5 @@
 # Notes with Anchors
-This module extends to canvas notes the functionality found in content links of being able to link directly to page anchors in journal pages.
+This module (a) extends to canvas notes the functionality found in content links of being able to link directly to page anchors in journal pages, and (b) modifies the *Jump To Pin* feature to behave as expected when using it to jump to a Note created with a page anchor.
 
 ### How-To
 Drag journal entries, pages, or section names from a journal sidebar and configure them as you normally would. The only difference is that you will be able to link to specific sections within journal pages (anchors) rather than being limited to linking to just whole pages or whole journal entries.
