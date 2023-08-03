@@ -4,6 +4,9 @@ const includeEntryName = "include-entry-name";
 const includePageName = "include-page-name";
 const includeAnchorName = "include-anchor-name";
 
+
+const redrawNotes = debounce(() => canvas.notes.draw(), 100);
+
 Hooks.once("init", () => {
 
     game.settings.register(moduleName, noteLabelSeparator, {
@@ -54,7 +57,7 @@ Hooks.once("libWrapper.Ready", () => {
     libWrapper.register(
         moduleName,
         "NoteConfig.prototype._getSubmitData",
-        function (wrapped, ...args) {
+        function (wrapped) {
             let data = wrapped();
             data[`flags.${moduleName}.anchor`] = data.anchor;
             delete data.anchor;
@@ -101,7 +104,7 @@ Hooks.once("libWrapper.Ready", () => {
     libWrapper.register(
         moduleName,
         "NoteDocument.prototype.label",
-        function (wrapped, ...args) {
+        function (wrapped) {
             const names = [
                 game.settings.get(moduleName, includeEntryName) ? this.entry?.name : null,
                 game.settings.get(moduleName, includePageName) ? this.page?.name : null,
@@ -117,6 +120,85 @@ Hooks.once("libWrapper.Ready", () => {
                 .join(game.settings.get(moduleName, noteLabelSeparator));
         },
         "MIXED"
+    );
+
+    libWrapper.register(
+        moduleName,
+        "JournalSheet.prototype._getEntryContextOptions",
+        function () {
+            // Copied and modified in many location because there doesn't seem to be a better way to modify the context menu to the desired ends.
+            const getPage = el => this.object.pages.get(el.closest(".directory-item").data("page-id"));
+            const getJumpNote = el => {
+                const pageId = el.closest(".directory-item").data("page-id");
+                const anchor = el.data("anchor");
+                const satifsfiesJumpCondition = noteDoc => {
+                    const noteAnchor = noteDoc.getFlag(moduleName, "anchor");
+                    return noteDoc.pageId == pageId && (noteAnchor == anchor || noteAnchor == "" && anchor == undefined)
+                }
+                return canvas.notes.placeables.find(n => satifsfiesJumpCondition(n.document));
+            }
+
+            return [{
+                name: "SIDEBAR.Edit",
+                icon: '<i class="fas fa-edit"></i>',
+                condition: el => el.hasClass("page-heading") && this.isEditable && getPage(el)?.canUserModify(game.user, "update"),
+                callback: el => getPage(el)?.sheet.render(true)
+            }, {
+                name: "SIDEBAR.Delete",
+                icon: '<i class="fas fa-trash"></i>',
+                condition: el => el.hasClass("page-heading") && this.isEditable && getPage(el)?.canUserModify(game.user, "delete"),
+                callback: el => {
+                    const bounds = el[0].getBoundingClientRect();
+                    return getPage(el)?.deleteDialog({ top: bounds.top, left: bounds.right });
+                }
+            }, {
+                name: "SIDEBAR.Duplicate",
+                icon: '<i class="far fa-copy"></i>',
+                condition: el => el.hasClass("page-heading") && this.isEditable,
+                callback: el => {
+                    const page = getPage(el);
+                    return page.clone({ name: game.i18n.format("DOCUMENT.CopyOf", { name: page.name }) }, { save: true });
+                }
+            }, {
+                name: "OWNERSHIP.Configure",
+                icon: '<i class="fas fa-lock"></i>',
+                condition: el => el.hasClass("page-heading") && game.user.isGM,
+                callback: el => {
+                    const page = getPage(el);
+                    const bounds = el[0].getBoundingClientRect();
+                    new DocumentOwnershipConfig(page, { top: bounds.top, left: bounds.right }).render(true);
+                }
+            }, {
+                name: "JOURNAL.ActionShow",
+                icon: '<i class="fas fa-eye"></i>',
+                condition: el => el.hasClass("page-heading") && getPage(el)?.isOwner,
+                callback: el => {
+                    const page = getPage(el);
+                    if (page) return Journal.showDialog(page);
+                }
+            }, {
+                name: "SIDEBAR.JumpPin",
+                icon: '<i class="fa-solid fa-crosshairs"></i>',
+                condition: el => Boolean(getJumpNote(el)),
+                callback: el => {
+                    const note = getJumpNote(el);
+                    if (note) return canvas.notes.panToNote(note);
+                }
+            }];
+        },
+        "OVERRIDE"
+    );
+
+    libWrapper.register(
+        moduleName,
+        "JournalSheet.prototype._contextMenu",
+        function (html) {
+            ContextMenu.create(this, html, ".directory-item .page-heading, .directory-item [data-anchor]", this._getEntryContextOptions(), {
+                onOpen: () => { },
+                onClose: () => { }
+            });
+        },
+        "OVERRIDE"
     );
 
 });
@@ -178,8 +260,7 @@ function updateAnchorList(formApp) {
     const options = toc.map((anchor) => {
         const isSelected = anchor?.slug === formApp.document.flags?.[moduleName]?.anchor;
         return `<option value="${anchor.slug}"${isSelected ? " selected" : ""}>${anchor.text}</option>`;
-    })
-    .join("");
+    }).join("");
     formApp.form.elements.anchor.innerHTML = `<option></option>${options}`;
 }
 
@@ -197,11 +278,9 @@ function updateTextLabelPlaceholder(formApp) {
         game.settings.get(moduleName, includePageName) ? page?.name : null,
         game.settings.get(moduleName, includeAnchorName) ? toc?.[anchor]?.text : null
     ]
-    .filter(n => n)
-    .join(game.settings.get(moduleName, noteLabelSeparator));
+        .filter(n => n)
+        .join(game.settings.get(moduleName, noteLabelSeparator));
 
     formApp.form.elements.text.placeholder = placeholder;
 
 }
-
-const redrawNotes = debounce(() => canvas.notes.draw(), 100);
